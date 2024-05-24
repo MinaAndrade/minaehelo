@@ -59,10 +59,10 @@ public class ProdutosController {
         //salvar imagem
         MultipartFile imagem = produtoDto.getNomeImagem();
         Date dtCriacao = new Date();
-        String guardarImagem = imagem.getOriginalFilename();
+        String guardarImagem = dtCriacao.getTime() + "_" + imagem.getOriginalFilename();
 
         try {
-            String uploadDir = "public/images";
+            String uploadDir = "public/images/";
             Path uploadPath = Paths.get(uploadDir);
 
             if (!Files.exists(uploadPath)) {
