@@ -164,4 +164,32 @@ public class ProdutosController {
         }
         return "redirect:/produtos";
     }
+
+    @GetMapping("/deletar")
+    public String deletarProduto (
+            @RequestParam int id
+            ) {
+
+        try {
+            Produtos produto = repo.findById(id).get();
+
+            //deletar imagem do produto
+            Path imagemPath = Paths.get("public/images/" + produto.getNomeImagem());
+
+            try {
+                Files.delete(imagemPath);
+            }
+            catch (Exception ex) {
+                System.out.println("Exceção: " + ex.getMessage());
+            }
+
+            //deletar o produto
+            repo.delete(produto);
+        }
+        catch (Exception ex) {
+            System.out.println("Exceção: " + ex.getMessage());
+        }
+
+        return  "redirect:/produtos";
+    }
 }
