@@ -59,10 +59,10 @@ public class ProdutosController {
         //salvar imagem
         MultipartFile imagem = produtoDto.getNomeImagem();
         Date dtCriacao = new Date();
-        String guardarImagem = imagem.getOriginalFilename();
+        String guardarImagem = dtCriacao.getTime() + "_" + imagem.getOriginalFilename();
 
         try {
-            String uploadDir = "public/images";
+            String uploadDir = "public/images/";
             Path uploadPath = Paths.get(uploadDir);
 
             if (!Files.exists(uploadPath)) {
@@ -163,5 +163,33 @@ public class ProdutosController {
             System.out.println("Exceção: " + ex.getMessage());
         }
         return "redirect:/produtos";
+    }
+
+    @GetMapping("/deletar")
+    public String deletarProduto (
+            @RequestParam int id
+            ) {
+
+        try {
+            Produtos produto = repo.findById(id).get();
+
+            //deletar imagem do produto
+            Path imagemPath = Paths.get("public/images/" + produto.getNomeImagem());
+
+            try {
+                Files.delete(imagemPath);
+            }
+            catch (Exception ex) {
+                System.out.println("Exceção: " + ex.getMessage());
+            }
+
+            //deletar o produto
+            repo.delete(produto);
+        }
+        catch (Exception ex) {
+            System.out.println("Exceção: " + ex.getMessage());
+        }
+
+        return  "redirect:/produtos";
     }
 }
