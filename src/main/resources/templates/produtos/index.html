@@ -36,7 +36,7 @@
                 </td>
                 <td th:text="${produto.dtCriacao.toString().substring(0, 10)}"></td>
                 <td style="white-space:nowrap">
-                    <a class="btn btn-primary btn-sm" th:href="@{/produtos/editar(id=${produto.id})}" >Editar</a>
+                    <a class="btn btn-primary btn-sm" th:href="@{/produtos/editar(id=${produto.id})}">Editar</a>
                     <a class="btn btn-danger btn-sm" th:href="@{/produtos/deletar(id=${produto.id})}" onclick="return confirm('Você tem certeza?')">Deletar</a>
                 </td>
             </tr>

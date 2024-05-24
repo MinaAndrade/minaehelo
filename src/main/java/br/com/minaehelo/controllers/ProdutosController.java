@@ -59,7 +59,7 @@ public class ProdutosController {
         //salvar imagem
         MultipartFile imagem = produtoDto.getNomeImagem();
         Date dtCriacao = new Date();
-        String guardarImagem = dtCriacao.getTime() + "_" + imagem.getOriginalFilename();
+        String guardarImagem = imagem.getOriginalFilename();
 
         try {
             String uploadDir = "public/images";
@@ -105,11 +105,63 @@ public class ProdutosController {
             produtoDto.setPreco(produto.getPreco());
 
             model.addAttribute("produtoDto", produtoDto);
-
-        } catch (Exception ex) {
+        }
+        catch (Exception ex) {
             System.out.println("Exceção: " + ex.getMessage());
             return "redirect:/produtos";
         }
         return "produtos/editarProduto";
+    }
+
+    @PostMapping("/editar")
+    public String updateProduto (
+            Model model,
+            @RequestParam int id,
+            @Valid @ModelAttribute ProdutoDto produtoDto,
+            BindingResult result
+            ) {
+
+        try {
+            Produtos produto = repo.findById(id).get();
+            model.addAttribute("produto", produto);
+
+            if (result.hasErrors()) {
+                return "produtos/editarProduto";
+            }
+
+            if (!produtoDto.getNomeImagem().isEmpty()) {
+                //deleta a imagem antiga
+                String uploadDir = "public/images/";
+                Path oldImagePath = Paths.get(uploadDir + produto.getNomeImagem());
+
+                try {
+                    Files.delete(oldImagePath);
+                }
+                catch (Exception ex) {
+                    System.out.println("Exceção: " + ex.getMessage());
+                }
+
+                //salvar nova imagem
+                MultipartFile imagem = produtoDto.getNomeImagem();
+                Date dtCriacao = new Date();
+                String guardarImagem = dtCriacao.getTime() + "_" + imagem.getOriginalFilename();
+
+                try (InputStream inputStream = imagem.getInputStream()) {
+                    Files.copy(inputStream, Paths.get(uploadDir + guardarImagem), StandardCopyOption.REPLACE_EXISTING);
+                }
+                produto.setNomeImagem(guardarImagem);
+            }
+
+            produto.setNome(produtoDto.getNome());
+            produto.setDescricao(produtoDto.getDescricao());
+            produto.setCategoria(produtoDto.getCategoria());
+            produto.setPreco(produtoDto.getPreco());
+
+            repo.save(produto);
+        }
+        catch (Exception ex) {
+            System.out.println("Exceção: " + ex.getMessage());
+        }
+        return "redirect:/produtos";
     }
 }
